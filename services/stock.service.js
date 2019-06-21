@@ -4,11 +4,23 @@ const record = require("../utils/record");
 exports.getStock = function() {
   let result = [];
   if (recordQueue.peek()) {
-    // remove expired timeslots in the queue    
-    let firstInQueueTime = moment(recordQueue.peek().getTimestamp(), "YYYY-MM-DD HH-mm");
-    let currentTime = moment(moment().format("YYYY-MM-DD HH-mm"), "YYYY-MM-DD HH-mm");
-    let diffInMins = currentTime.diff(firstInQueueTime, 'minutes');
-    if(diffInMins > 10) recordQueue.dequeue();
+    while (recordQueue.peek()) {
+      // remove expired timeslots in the queue
+      let firstInQueueTime = moment(
+        recordQueue.peek().getTimestamp(),
+        "YYYY-MM-DD HH-mm"
+      );
+      let currentTime = moment(
+        moment().format("YYYY-MM-DD HH-mm"),
+        "YYYY-MM-DD HH-mm"
+      );
+      let diffInMins = currentTime.diff(firstInQueueTime, "minutes");
+      if (diffInMins > 10) {
+        recordQueue.dequeue();
+      } else {
+        break;
+      }
+    }
 
     // consolidate final result
     let masterRecord = recordQueue.reduce();
